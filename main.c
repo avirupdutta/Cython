@@ -6,9 +6,18 @@ struct Process{
     int waitingTime;
 };
 
+struct AvgWaitTimeOutput{
+    int fcfs;
+    int sjfP;
+    int sjfNP;
+    int roundRobin;
+};
+
+
 // function declarations
-struct Process * fcfsBubbleSort(struct Process arr[], int arrLen);
-struct Process * sjf_NP_BubbleSort(struct Process arr[], int arrLen);
+int fcfs(struct Process arr[], int arrLen);
+int sjf_Non_Preemptive(struct Process arr[], int arrLen);
+int sjf_Preemptive(struct Process arr[], int limit);
 
 void main(){
     int num, i;
@@ -18,9 +27,12 @@ void main(){
     
     struct Process allProcess[num];
     struct Process *sortedArr;
+    struct AvgWaitTimeOutput avgWtTime;
+
+
     
     // Creating and storing all processes inside allProcess Array
-    
+
     for(i = 0; i < num; i++){
         printf("\nEnter the arrival time of p:%d -> ", i);
         scanf("%d", &allProcess[i].arrivalTime);
@@ -32,7 +44,7 @@ void main(){
     }
     
     // sortedArr = fcfsBubbleSort(allProcess, num);
-    sortedArr = sjf_NP_BubbleSort(allProcess, num);
+    sortedArr = sjf_Non_Preemptive(allProcess, num);
     
     // Setting the waiting time accordingly
     sortedArr[0].waitingTime = 0;
@@ -56,7 +68,7 @@ void main(){
 }
 
 // Defining the fcfs algorithm
-struct Process * fcfsBubbleSort(struct Process arr[], int arrLen){
+int fcfs(struct Process arr[], int arrLen){
     int i, j;
     for(i=0; i<arrLen; i++){
         for(j=0; j<arrLen-i-1; j++){
@@ -71,7 +83,7 @@ struct Process * fcfsBubbleSort(struct Process arr[], int arrLen){
 }
 
 // Defining the non-pre-emptive sjf algorithm
-struct Process * sjf_NP_BubbleSort(struct Process arr[], int arrLen){
+int sjf_Non_Preemptive(struct Process arr[], int arrLen){
     int i, j;
     for(i=0; i<arrLen; i++){
         for(j=0; j<arrLen-i-1; j++){
@@ -83,4 +95,48 @@ struct Process * sjf_NP_BubbleSort(struct Process arr[], int arrLen){
         }
     }
     return arr;
+}
+
+
+int sjf_Preemptive(struct Process arr[], int limit){
+	int arrival_time[limit], burst_time[limit+1], temp[limit];
+    double wait_time = 0, end;
+    float average_waiting_time;
+    int i, smallest, count = 0, time;
+     
+    printf("\nEnter Details of %d Processes\n", limit);
+    for(i = 0; i < limit; i++){
+        printf("\nEnter Arrival Time:\t");
+        scanf("%d", &arrival_time[i]);
+        printf("Enter Burst Time:\t");
+        scanf("%d", &burst_time[i]); 
+        temp[i] = burst_time[i];
+    }
+    printf("\nEnter Details of %d Processes You Entered\n", limit);
+    printf("\t Process Name \t Arrival Time \t Brust Time");
+    for(i = 0; i < limit; i++){
+    	printf("\n");
+        printf("\t\tP%d",i);
+        printf("\t\t%d",arrival_time[i]);
+        printf("\t\t%d",burst_time[i]);
+        
+    }
+    burst_time[limit] = 999;  
+    for(time = 0; count != limit; time++){
+        smallest = limit;
+        for(i = 0; i < limit; i++){
+            if((arrival_time[i] <= time) && (burst_time[i] < burst_time[smallest]) && (burst_time[i] > 0)){
+                smallest = i;
+            }
+        }
+        burst_time[smallest]--;
+        if(burst_time[smallest] == 0){
+            count++;
+            end = time + 1;
+            wait_time = wait_time + end - arrival_time[smallest] - temp[smallest];
+        }
+    }
+    average_waiting_time = wait_time / limit; 
+    printf("\n\nAverage Waiting Time:\t%lf\n", average_waiting_time);
+    return(average_waiting_time);
 }
