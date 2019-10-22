@@ -60,7 +60,7 @@ void main(){
     // }
     //---------------------------------
 
-    //>>Toggler>> 0.0; //
+    //>>Toggler>> 0.0; // 
     avgWtTime.fcfs = fcfs(allProcess, num);
     avgWtTime.sjfNP = sjf_Non_Preemptive(allProcess, num);
     avgWtTime.sjfP = sjf_Preemptive(allProcess, num);
@@ -124,35 +124,21 @@ double sjf_Non_Preemptive(struct Process arr[], int arrLen){
 }
 
 double sjf_Preemptive(struct Process arr[], int limit){
-	int arrival_time[limit], burst_time[limit+1], temp[limit];
+	int temp[limit];
     double total_waitTime = 0, end;
     float average_waiting_time;
     int i, smallest, count = 0, time;
-
-    int smallestBurstTime = 999999;
      
-    // printf("\nEnter Details of %d Processes\n", limit);
+     
     for(i = 0; i < limit; i++){
-    //     printf("\nEnter Arrival Time:\t");
-    //     scanf("%d", &arrival_time[i]);
-    //     printf("Enter Burst Time:\t");
-    //     scanf("%d", &burst_time[i]); 
         temp[i] = arr[i].burstTime;
     }
-    // printf("\nEnter Details of %d Processes You Entered\n", limit);
-    // printf("\t Process Name \t Arrival Time \t Brust Time");
-    // for(i = 0; i < limit; i++){
-    // 	printf("\n");
-    //     printf("\t\tP%d",i);
-    //     printf("\t\t%d",arrival_time[i]);
-    //     printf("\t\t%d",burst_time[i]);
-        
-    // }
-    // burst_time[limit] = 999;  
+    
+    arr[limit].burstTime = 999;
     for(time = 0; count != limit; time++){
         smallest = limit;
         for(i = 0; i < limit; i++){
-            if((arr[i].arrivalTime <= time) && (arr[i].burstTime < smallestBurstTime) && (arr[i].burstTime > 0)){
+            if(arr[i].arrivalTime <= time && arr[i].burstTime < arr[smallest].burstTime && arr[i].burstTime > 0){
                 smallest = i;
             }
         }
@@ -164,8 +150,8 @@ double sjf_Preemptive(struct Process arr[], int limit){
         }
     }
     average_waiting_time = total_waitTime / limit; 
-    printf("\nTotal Waiting Time:\t%lf\n", total_waitTime);
-    printf("\nAverage Waiting Time:\t%lf\n\n", average_waiting_time);
+    // printf("\nTotal Waiting Time:\t%lf\n", total_waitTime);
+    // printf("\nAverage Waiting Time:\t%lf\n\n", average_waiting_time);
     return(average_waiting_time);
 }
 
