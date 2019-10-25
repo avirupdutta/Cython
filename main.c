@@ -1,38 +1,36 @@
 #include <stdio.h>
+
 struct Process{
     int p_id;
     int arrivalTime;
     int burstTime;
     int waitingTime;
+    int remainingTime;
 };
 
 struct AvgWaitTimeOutput{
-    int fcfs;
-    int sjfP;
-    int sjfNP;
-    int roundRobin;
+    double fcfs;
+    double sjfP;
+    double sjfNP;
+    double roundRobin;
 };
 
-
-// function declarations
-int fcfs(struct Process arr[], int arrLen);
-int sjf_Non_Preemptive(struct Process arr[], int arrLen);
-int sjf_Preemptive(struct Process arr[], int limit);
+double fcfs(struct Process arr[], int arrLen);
+double sjf_Non_Preemptive(struct Process arr[], int arrLen);
+double sjf_Preemptive(struct Process arr[], int arrLen);
+double round_robin(struct Process arr[], int arrLen);
 
 void main(){
     int num, i;
-    float avgWtTime;
+    
+    // getting the total no. of processes from the user (DYNAMICALLY)
     printf("Enter the num of processes: ");
     scanf("%d", &num);
     
     struct Process allProcess[num];
-    struct Process *sortedArr;
     struct AvgWaitTimeOutput avgWtTime;
 
-
-    
-    // Creating and storing all processes inside allProcess Array
-
+    // Creating and storing all processes inside allProcess Array (DYNAMICALLY)
     for(i = 0; i < num; i++){
         printf("\nEnter the arrival time of p:%d -> ", i);
         scanf("%d", &allProcess[i].arrivalTime);
@@ -42,33 +40,18 @@ void main(){
         
         allProcess[i].p_id = i;
     }
-    
-    // sortedArr = fcfsBubbleSort(allProcess, num);
-    sortedArr = sjf_Non_Preemptive(allProcess, num);
-    
-    // Setting the waiting time accordingly
-    sortedArr[0].waitingTime = 0;
-    for(i=1; i<num; i++){
-        sortedArr[i].waitingTime = (sortedArr[i-1].burstTime + sortedArr[i-1].waitingTime);   
-        
-    }
-    
-    // Displaying the 3 arrays
-    printf("\nOutput:-\n====================\n");
-    for(i = 0; i<num; i++){
-        printf("p%d has arrival time = %d, burst time = %d and waiting time = %d\n", sortedArr[i].p_id, sortedArr[i].arrivalTime, sortedArr[i].burstTime, sortedArr[i].waitingTime);
-    }
-    
-    // Calculating the average waiting time from all processes
-    avgWtTime=0.0;
-    for(i = 0; i<num; i++){
-        avgWtTime += sortedArr[i].waitingTime;
-    }
-    printf("\nAverage Waiting Time = %f \n", (avgWtTime/num));
+
+    avgWtTime.fcfs = fcfs(allProcess, num);
+    avgWtTime.sjfNP = sjf_Non_Preemptive(allProcess, num);
+    avgWtTime.roundRobin = round_robin(allProcess, num);
+    avgWtTime.sjfP = sjf_Preemptive(allProcess, num);
+
+    printf("\nAlgos:\t\tFCFS\t\tSJF(Non-Pre-eemptive)\t\tSJF(Pre-eemptive)\t\t Round-Robin\n");
+    printf("Avg. Wt Time:\t\t%lf\t\t%lf\t\t%lf\t\t%lf\n", avgWtTime.fcfs, avgWtTime.sjfNP, avgWtTime.sjfP, avgWtTime.roundRobin);
 }
 
-// Defining the fcfs algorithm
-int fcfs(struct Process arr[], int arrLen){
+double fcfs(struct Process arr[], int arrLen){
+    printf("\nInitiating fcfs algo...\n");
     int i, j;
     for(i=0; i<arrLen; i++){
         for(j=0; j<arrLen-i-1; j++){
@@ -79,11 +62,26 @@ int fcfs(struct Process arr[], int arrLen){
             }
         }
     }
-    return arr;
+    
+    // calculating the waiting time
+    arr[0].waitingTime = 0;
+    for(i=1; i<arrLen; i++){
+        arr[i].waitingTime = (arr[i-1].burstTime + arr[i-1].waitingTime);   
+        
+    }
+
+    // calculating the avg waiting time
+    double avgWtTime=0.0;
+    for(i = 0; i<arrLen; i++){
+        avgWtTime += arr[i].waitingTime;
+    }
+    printf("Finishing fcfs algo...\n");
+    return (avgWtTime/arrLen);
 }
 
-// Defining the non-pre-emptive sjf algorithm
-int sjf_Non_Preemptive(struct Process arr[], int arrLen){
+double sjf_Non_Preemptive(struct Process arr[], int arrLen){
+    printf("\nInitiating sjf(non-preemptive) algo...\n");
+
     int i, j;
     for(i=0; i<arrLen; i++){
         for(j=0; j<arrLen-i-1; j++){
@@ -94,49 +92,121 @@ int sjf_Non_Preemptive(struct Process arr[], int arrLen){
             }
         }
     }
-    return arr;
+
+    // calculating the waiting time
+    arr[0].waitingTime = 0;
+    for(i=1; i<arrLen; i++){
+        arr[i].waitingTime = (arr[i-1].burstTime + arr[i-1].waitingTime);   
+        
+    }
+
+    // calculating the avg waiting time
+    double avgWtTime=0.0;
+    for(i = 0; i<arrLen; i++){
+        avgWtTime += arr[i].waitingTime;
+    }
+    printf("Finishing sjf(Non-preemptive) algo...\n");
+
+    return (avgWtTime/arrLen);
 }
 
+double round_robin(struct Process arr[], int arrLen) {
+    printf("\nInitiating Round Robin algo...\n");
+	int n = arrLen, i,j,temp,time_quantum,remain,time=0,count,wait_time=0,flag=0;
+	remain=n;
+	printf("Enter the time quantum: ");
+	scanf("%d",&time_quantum);
+	
+    // setting the remaining time for each process
+    for(i=0;i<n;i++){
+		arr[i].remainingTime=arr[i].burstTime;
+	}
+    // sorting the processes according to their arriaval time
+	for(i=0; i<n; i++){
+		for(j=i+1; j<n; j++){
+			if(arr[i].arrivalTime > arr[j].arrivalTime){
+				temp = arr[i].arrivalTime;
+				arr[i].arrivalTime = arr[j].arrivalTime;
+				arr[j].arrivalTime = temp;
 
-int sjf_Preemptive(struct Process arr[], int limit){
-	int arrival_time[limit], burst_time[limit+1], temp[limit];
-    double wait_time = 0, end;
+				temp=arr[i].burstTime;
+				arr[i].burstTime = arr[j].burstTime;
+				arr[j].burstTime = temp;
+
+				temp=arr[i].p_id;
+				arr[i].p_id = arr[j].p_id;
+				arr[j].p_id = temp;
+				
+                temp = arr[i].remainingTime;
+				arr[i].remainingTime = arr[j].remainingTime; 
+				arr[j].remainingTime = temp;
+			}
+		}
+	}
+
+
+    arr[0].arrivalTime = 0;
+	
+    // main algo starts below
+    for(time=0,count=0;remain!=0;){
+		if(arr[count].remainingTime <= time_quantum && arr[count].remainingTime > 0){
+			time += arr[count].remainingTime;
+			arr[count].remainingTime = 0;
+			flag = 1;
+		}
+		else if(arr[count].remainingTime > 0){
+			arr[count].remainingTime -= time_quantum;
+			time += time_quantum;
+		}
+		if(arr[count].remainingTime == 0 && flag == 1){
+            printf("%d\n", remain);
+			remain--;
+			wait_time += time - arr[count].arrivalTime - arr[count].burstTime;
+			flag = 0;
+		}
+		if(count == n-1){
+			count=0;
+		}
+		else if(arr[count+1].arrivalTime <= time){
+			count++;
+		}
+		else{
+			count=0;
+		}
+	}
+    printf("Finishing Round Robin algo...\n");
+    return (wait_time*1.0/n);
+}
+
+double sjf_Preemptive(struct Process arr[], int arrLen){
+    printf("\nInitiating sjf(Preemptive) algo...\n");
+
+	int temp[arrLen];
+    double total_waitTime = 0, end;
     float average_waiting_time;
     int i, smallest, count = 0, time;
      
-    printf("\nEnter Details of %d Processes\n", limit);
-    for(i = 0; i < limit; i++){
-        printf("\nEnter Arrival Time:\t");
-        scanf("%d", &arrival_time[i]);
-        printf("Enter Burst Time:\t");
-        scanf("%d", &burst_time[i]); 
-        temp[i] = burst_time[i];
+     
+    for(i = 0; i < arrLen; i++){
+        temp[i] = arr[i].burstTime;
     }
-    printf("\nEnter Details of %d Processes You Entered\n", limit);
-    printf("\t Process Name \t Arrival Time \t Brust Time");
-    for(i = 0; i < limit; i++){
-    	printf("\n");
-        printf("\t\tP%d",i);
-        printf("\t\t%d",arrival_time[i]);
-        printf("\t\t%d",burst_time[i]);
-        
-    }
-    burst_time[limit] = 999;  
-    for(time = 0; count != limit; time++){
-        smallest = limit;
-        for(i = 0; i < limit; i++){
-            if((arrival_time[i] <= time) && (burst_time[i] < burst_time[smallest]) && (burst_time[i] > 0)){
+    
+    arr[arrLen].burstTime = 999;
+    for(time = 0; count != arrLen; time++){
+        smallest = arrLen;
+        for(i = 0; i < arrLen; i++){
+            if(arr[i].arrivalTime <= time && arr[i].burstTime < arr[smallest].burstTime && arr[i].burstTime > 0){
                 smallest = i;
             }
         }
-        burst_time[smallest]--;
-        if(burst_time[smallest] == 0){
+        arr[smallest].burstTime--; 
+        if(arr[smallest].burstTime == 0){
             count++;
-            end = time + 1;
-            wait_time = wait_time + end - arrival_time[smallest] - temp[smallest];
+            end = time+1;
+            total_waitTime = total_waitTime + end - arr[smallest].arrivalTime - temp[smallest];
         }
     }
-    average_waiting_time = wait_time / limit; 
-    printf("\n\nAverage Waiting Time:\t%lf\n", average_waiting_time);
+    average_waiting_time = total_waitTime / arrLen; 
+    printf("Finishing sjf(Preemptive) algo...\n");
     return(average_waiting_time);
 }
