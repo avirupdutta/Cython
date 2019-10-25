@@ -16,7 +16,7 @@ struct AvgWaitTimeOutput{
 
 double fcfs(struct Process arr[], int arrLen);
 double sjf_Non_Preemptive(struct Process arr[], int arrLen);
-double sjf_Preemptive(struct Process arr[], int limit);
+double sjf_Preemptive(struct Process arr[], int arrLen);
 
 void main(){
     int num, i;
@@ -123,21 +123,21 @@ double sjf_Non_Preemptive(struct Process arr[], int arrLen){
     return (avgWtTime/arrLen);
 }
 
-double sjf_Preemptive(struct Process arr[], int limit){
-	int temp[limit];
+double sjf_Preemptive(struct Process arr[], int arrLen){
+	int temp[arrLen];
     double total_waitTime = 0, end;
     float average_waiting_time;
     int i, smallest, count = 0, time;
      
      
-    for(i = 0; i < limit; i++){
+    for(i = 0; i < arrLen; i++){
         temp[i] = arr[i].burstTime;
     }
     
-    arr[limit].burstTime = 999;
-    for(time = 0; count != limit; time++){
-        smallest = limit;
-        for(i = 0; i < limit; i++){
+    arr[arrLen].burstTime = 999;
+    for(time = 0; count != arrLen; time++){
+        smallest = arrLen;
+        for(i = 0; i < arrLen; i++){
             if(arr[i].arrivalTime <= time && arr[i].burstTime < arr[smallest].burstTime && arr[i].burstTime > 0){
                 smallest = i;
             }
@@ -149,7 +149,7 @@ double sjf_Preemptive(struct Process arr[], int limit){
             total_waitTime = total_waitTime + end - arr[smallest].arrivalTime - temp[smallest];
         }
     }
-    average_waiting_time = total_waitTime / limit; 
+    average_waiting_time = total_waitTime / arrLen; 
     // printf("\nTotal Waiting Time:\t%lf\n", total_waitTime);
     // printf("\nAverage Waiting Time:\t%lf\n\n", average_waiting_time);
     return(average_waiting_time);
