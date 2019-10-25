@@ -5,6 +5,7 @@ struct Process{
     int arrivalTime;
     int burstTime;
     int waitingTime;
+    int remainingTime;
 };
 
 struct AvgWaitTimeOutput{
@@ -17,6 +18,7 @@ struct AvgWaitTimeOutput{
 double fcfs(struct Process arr[], int arrLen);
 double sjf_Non_Preemptive(struct Process arr[], int arrLen);
 double sjf_Preemptive(struct Process arr[], int arrLen);
+double round_robin(struct Process arr[], int arrLen);
 
 void main(){
     int num, i;
@@ -24,10 +26,10 @@ void main(){
     
     // testing input data
     //---------------------------------
-    num = 4;
+    // num = 4;
     // getting the total no. of processes from the user (DYNAMICALLY)
-    // printf("Enter the num of processes: ");
-    // scanf("%d", &num);
+    printf("Enter the num of processes: ");
+    scanf("%d", &num);
     // ------------
     
     struct Process allProcess[num];
@@ -35,41 +37,44 @@ void main(){
 
     // testing input data
     //---------------------------------
-    num = 4;
-    allProcess[0].arrivalTime = 0;
-    allProcess[0].burstTime = 8;
+    // num = 4;
+    // allProcess[0].arrivalTime = 0;
+    // allProcess[0].burstTime = 8;
 
-    allProcess[1].arrivalTime = 1;
-    allProcess[1].burstTime = 4;
+    // allProcess[1].arrivalTime = 1;
+    // allProcess[1].burstTime = 4;
     
-    allProcess[2].arrivalTime = 3;
-    allProcess[2].burstTime = 9;
+    // allProcess[2].arrivalTime = 3;
+    // allProcess[2].burstTime = 9;
     
-    allProcess[3].arrivalTime = 4;
-    allProcess[3].burstTime = 5;
+    // allProcess[3].arrivalTime = 4;
+    // allProcess[3].burstTime = 5;
 
     // Creating and storing all processes inside allProcess Array (DYNAMICALLY)
-    // for(i = 0; i < num; i++){
-    //     printf("\nEnter the arrival time of p:%d -> ", i);
-    //     scanf("%d", &allProcess[i].arrivalTime);
+    for(i = 0; i < num; i++){
+        printf("\nEnter the arrival time of p:%d -> ", i);
+        scanf("%d", &allProcess[i].arrivalTime);
         
-    //     printf("Enter the burst time of p:%d -> ", i);
-    //     scanf("%d", &allProcess[i].burstTime);
+        printf("Enter the burst time of p:%d -> ", i);
+        scanf("%d", &allProcess[i].burstTime);
         
-    //     allProcess[i].p_id = i;
-    // }
+        allProcess[i].p_id = i;
+    }
     //---------------------------------
 
+    
     //>>Toggler>> 0.0; // 
     avgWtTime.fcfs = fcfs(allProcess, num);
     avgWtTime.sjfNP = sjf_Non_Preemptive(allProcess, num);
+    avgWtTime.roundRobin = round_robin(allProcess, num);
     avgWtTime.sjfP = sjf_Preemptive(allProcess, num);
 
-    printf("FCFS\t\tSJF(Non-Pre-eemptive)\t\tSJF(Pre-eemptive)\n");
-    printf("%lf\t\t%lf\t\t%lf\n", avgWtTime.fcfs, avgWtTime.sjfNP, avgWtTime.sjfP);
+    printf("\nFCFS\t\tSJF(Non-Pre-eemptive)\t\tSJF(Pre-eemptive)\t\t Round-Robin\n");
+    printf("%lf\t\t%lf\t\t%lf\t\t%lf\n", avgWtTime.fcfs, avgWtTime.sjfNP, avgWtTime.sjfP, avgWtTime.roundRobin);
 }
 
 double fcfs(struct Process arr[], int arrLen){
+    printf("\nInitiating fcfs algo...\n");
     int i, j;
     for(i=0; i<arrLen; i++){
         for(j=0; j<arrLen-i-1; j++){
@@ -93,10 +98,13 @@ double fcfs(struct Process arr[], int arrLen){
     for(i = 0; i<arrLen; i++){
         avgWtTime += arr[i].waitingTime;
     }
+    printf("Finishing fcfs algo...\n");
     return (avgWtTime/arrLen);
 }
 
 double sjf_Non_Preemptive(struct Process arr[], int arrLen){
+    printf("\nInitiating sjf(non-preemptive) algo...\n");
+
     int i, j;
     for(i=0; i<arrLen; i++){
         for(j=0; j<arrLen-i-1; j++){
@@ -120,10 +128,14 @@ double sjf_Non_Preemptive(struct Process arr[], int arrLen){
     for(i = 0; i<arrLen; i++){
         avgWtTime += arr[i].waitingTime;
     }
+    printf("Finishing sjf(Non-preemptive) algo...\n");
+
     return (avgWtTime/arrLen);
 }
 
 double sjf_Preemptive(struct Process arr[], int arrLen){
+    printf("\nInitiating sjf(Preemptive) algo...\n");
+
 	int temp[arrLen];
     double total_waitTime = 0, end;
     float average_waiting_time;
@@ -152,6 +164,74 @@ double sjf_Preemptive(struct Process arr[], int arrLen){
     average_waiting_time = total_waitTime / arrLen; 
     // printf("\nTotal Waiting Time:\t%lf\n", total_waitTime);
     // printf("\nAverage Waiting Time:\t%lf\n\n", average_waiting_time);
+    printf("Finishing sjf(Preemptive) algo...\n");
     return(average_waiting_time);
 }
 
+double round_robin(struct Process arr[], int arrLen) {
+    printf("\nInitiating Round Robin algo...\n");
+	int n = arrLen, i,j,temp,time_quantum,remain,time=0,count,wait_time=0,flag=0;
+	remain=n;
+	printf("Enter the time quantum: ");
+	scanf("%d",&time_quantum);
+	
+    // setting the remaining time for each process
+    for(i=0;i<n;i++){
+		arr[i].remainingTime=arr[i].burstTime;
+	}
+    // sorting the processes according to their arriaval time
+	for(i=0; i<n; i++){
+		for(j=i+1; j<n; j++){
+			if(arr[i].arrivalTime > arr[j].arrivalTime){
+				temp = arr[i].arrivalTime;
+				arr[i].arrivalTime = arr[j].arrivalTime;
+				arr[j].arrivalTime = temp;
+
+				temp=arr[i].burstTime;
+				arr[i].burstTime = arr[j].burstTime;
+				arr[j].burstTime = temp;
+
+				temp=arr[i].p_id;
+				arr[i].p_id = arr[j].p_id;
+				arr[j].p_id = temp;
+				
+                temp = arr[i].remainingTime;
+				arr[i].remainingTime = arr[j].remainingTime; 
+				arr[j].remainingTime = temp;
+			}
+		}
+	}
+
+
+    arr[0].arrivalTime = 0;
+	
+    // main algo starts below
+    for(time=0,count=0;remain!=0;){
+		if(arr[count].remainingTime <= time_quantum && arr[count].remainingTime > 0){
+			time += arr[count].remainingTime;
+			arr[count].remainingTime = 0;
+			flag = 1;
+		}
+		else if(arr[count].remainingTime > 0){
+			arr[count].remainingTime -= time_quantum;
+			time += time_quantum;
+		}
+		if(arr[count].remainingTime == 0 && flag == 1){
+            printf("%d\n", remain);
+			remain--;
+			wait_time += time - arr[count].arrivalTime - arr[count].burstTime;
+			flag = 0;
+		}
+		if(count == n-1){
+			count=0;
+		}
+		else if(arr[count+1].arrivalTime <= time){
+			count++;
+		}
+		else{
+			count=0;
+		}
+	}
+    printf("Finishing Round Robin algo...\n");
+    return (wait_time*1.0/n);
+}
