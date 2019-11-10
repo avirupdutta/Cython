@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 struct Process{
     int p_id;
@@ -20,8 +21,15 @@ double sjf_Non_Preemptive(struct Process arr[], int arrLen);
 double sjf_Preemptive(struct Process arr[], int arrLen);
 double round_robin(struct Process arr[], int arrLen);
 
-void main(){
+int main(){
     int num, i;
+    FILE *fptr = fopen("sample.txt", "w"); 
+    if (fptr == NULL) 
+    { 
+        printf("Could not open file"); 
+        return 0; 
+    } 
+    
     
     // getting the total no. of processes from the user (DYNAMICALLY)
     printf("Enter the num of processes: ");
@@ -45,9 +53,12 @@ void main(){
     avgWtTime.sjfNP = sjf_Non_Preemptive(allProcess, num);
     avgWtTime.roundRobin = round_robin(allProcess, num);
     avgWtTime.sjfP = sjf_Preemptive(allProcess, num);
-
+    fprintf(fptr,"%f\n%f\n%f\n%f\n",avgWtTime.fcfs,avgWtTime.sjfNP,avgWtTime.sjfP,avgWtTime.roundRobin); 
+    fclose(fptr);
     printf("\nAlgos:\t\tFCFS\t\tSJF(Non-Pre-eemptive)\t\tSJF(Pre-eemptive)\t\t Round-Robin\n");
     printf("Avg. Wt Time:\t\t%lf\t\t%lf\t\t%lf\t\t%lf\n", avgWtTime.fcfs, avgWtTime.sjfNP, avgWtTime.sjfP, avgWtTime.roundRobin);
+
+    system("python graph.py");
 }
 
 double fcfs(struct Process arr[], int arrLen){
